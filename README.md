@@ -1,16 +1,15 @@
 # SCrawler Tools Update Script
 
-This script automatically finds SCrawler installations anywhere on your computer and updates both **yt-dlp** (YouTube downloader) and **gallery-dl** (gallery downloader) to their latest versions. It offers an interactive menu to choose which tool to update.
+This script updates both **yt-dlp** (YouTube downloader) and **gallery-dl** (gallery downloader) in your SCrawler installation. It must be run from within the SCrawler directory where `SCrawler.exe` is located.
 
 ## 🌟 Key Features
 
 - **Dual Tool Support**: Updates both yt-dlp and gallery-dl from their official GitHub releases
 - **Interactive Menu**: Choose which tool to update or update both at once
-- **Universal Search**: Finds SCrawler installations regardless of directory name or location
-- **Smart Detection**: Identifies SCrawler by looking for `SCrawler.exe` and `Environment` folder
-- **Wide Coverage**: Searches Downloads, Desktop, Documents, Program Files, and all drive roots
-- **Zero Configuration**: Works out-of-the-box without manual path specification
-- **Safe Updates**: Creates automatic backups before updating
+- **Local Operation**: Works from within the SCrawler directory
+- **Auto-Detection**: Finds Environment folder automatically when run from SCrawler directory
+- **Versioned Backups**: Creates timestamped backups before updating
+- **Safe Updates**: Validates downloads before replacing executables
 
 ## Files Included
 
@@ -27,20 +26,28 @@ This script automatically finds SCrawler installations anywhere on your computer
 - Current version: 1.30.5
 - Latest version: v1.30.9
 
-## 🔍 How Auto-Detection Works
+## 📁 Installation Requirements
 
-The script searches for SCrawler installations by looking for directories that contain:
-1. `SCrawler.exe` (the main application)
-2. `Environment` folder with downloader tools (yt-dlp.exe and/or gallery-dl.exe)
+**The script must be placed and run from within your SCrawler directory:**
 
-**Search Locations:**
-- Script directory (where the script is located)
-- User profile folders (Downloads, Desktop, Documents)
-- Program Files directories
-- Drive roots (C:\, D:\, E:\, F:\)
-- All subdirectories up to 2 levels deep
+1. **Copy the script** to your SCrawler directory (same folder as `SCrawler.exe`)
+2. **Run from that location** - the script expects to find:
+   - `SCrawler.exe` in the current directory
+   - `Environment` folder with `yt-dlp.exe` and/or `gallery-dl.exe`
 
-**Works with ANY directory name:**
+**Directory Structure Required:**
+```
+YourSCrawlerFolder/
+├── SCrawler.exe                    ← Main application
+├── Update-SCrawler-Tools.ps1       ← This script (place here)
+├── Environment/
+│   ├── yt-dlp.exe                  ← YouTube downloader
+│   ├── gallery-dl.exe              ← Gallery downloader
+│   └── [other tools...]
+└── [other SCrawler files...]
+```
+
+**Works with ANY SCrawler directory name:**
 - `SCrawler_2025.9.1.0_x64` ✅
 - `SCrawler_2025.10.5.0_x64` ✅
 - `MySCrawler` ✅
@@ -51,10 +58,13 @@ The script searches for SCrawler installations by looking for directories that c
 ## Usage
 
 ### Method 1: Interactive Menu (Recommended)
-- **Double-click** the script file → Choose from menu
-- **Right-click** → "Run with PowerShell" → Choose from menu
+1. **Navigate to your SCrawler directory** (where `SCrawler.exe` is located)
+2. **Double-click** `Update-SCrawler-Tools.ps1` → Choose from menu
+3. **Or right-click** → "Run with PowerShell" → Choose from menu
 
 ### Method 2: Direct Tool Selection
+1. **Open PowerShell in your SCrawler directory**
+2. **Run one of these commands:**
 ```powershell
 # Update yt-dlp only
 .\Update-SCrawler-Tools.ps1 -Tool "yt-dlp"
@@ -74,8 +84,8 @@ The script searches for SCrawler installations by looking for directories that c
 # Run quietly (no colored output)
 .\Update-SCrawler-Tools.ps1 -Tool "gallery-dl" -Quiet
 
-# Specify custom environment path
-.\Update-SCrawler-Tools.ps1 -EnvironmentPath "C:\Custom\Path"
+# Specify custom environment path (rarely needed)
+.\Update-SCrawler-Tools.ps1 -EnvironmentPath ".\Environment"
 ```
 
 ### Method 4: From Command Prompt
@@ -94,7 +104,7 @@ The script supports several command-line parameters for advanced usage:
 | `-Tool` | String | Specify which tool to update | `-Tool "yt-dlp"` |
 | `-Force` | Switch | Force update without prompting | `-Force` |
 | `-Quiet` | Switch | Minimal output (no colors/prompts) | `-Quiet` |
-| `-EnvironmentPath` | String | Custom path to SCrawler Environment | `-EnvironmentPath "C:\Custom\Path"` |
+| `-EnvironmentPath` | String | Custom path to Environment folder (relative to SCrawler directory) | `-EnvironmentPath ".\Environment"` |
 
 ### Tool Options for `-Tool` Parameter
 - `"yt-dlp"` - Update YouTube downloader only
@@ -128,7 +138,7 @@ The script supports several command-line parameters for advanced usage:
 .\Update-SCrawler-Tools.ps1 -Force -Quiet
 
 # Custom environment path
-.\Update-SCrawler-Tools.ps1 -EnvironmentPath "D:\MyPrograms\SCrawler\Environment"
+.\Update-SCrawler-Tools.ps1 -EnvironmentPath ".\CustomEnvironment"
 
 # Combine multiple parameters
 .\Update-SCrawler-Tools.ps1 -Tool "both" -Force -Quiet
@@ -179,12 +189,13 @@ if ($LASTEXITCODE -eq 0) {
 
 ## What the Script Does
 
-1. **Shows Menu**: Interactive selection of tool to update (or runs directly if -Tool specified)
-2. **Checks Environment**: Verifies the Environment folder exists
-3. **Gets Current Version**: Runs `--version` on the selected tool
-4. **Fetches Latest**: Queries GitHub API for the latest release version
-5. **Compares**: Determines if an update is needed
-6. **Updates (if needed)**:
+1. **Verifies Location**: Ensures it's running from within a SCrawler directory (looks for SCrawler.exe)
+2. **Shows Menu**: Interactive selection of tool to update (or runs directly if -Tool specified)
+3. **Checks Environment**: Verifies the Environment folder exists
+4. **Gets Current Version**: Runs `--version` on the selected tool
+5. **Fetches Latest**: Queries GitHub API for the latest release version
+6. **Compares**: Determines if an update is needed
+7. **Updates (if needed)**:
    - Downloads latest executable from GitHub
    - Tests the downloaded file
    - Creates backup of current version
